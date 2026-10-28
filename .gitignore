@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Training runs and caches
+runs/
+runs_local/
+archive/**/labels.cache
+archive/**/labels.cache.bak
+
+# Datasets are not committed (75 MB). Download or train locally.
+archive/
+
+# Stock COCO weights are downloaded on demand; the trained model is committed.
+yolov8n.pt
+yolov8s.pt
+yolov8m.pt
+yolov8l.pt
+yolov8x.pt
+*.onnx
+*.torchscript
+
+# Uploads / local artifacts
+samples/
+uploads/
+temp/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+*.log

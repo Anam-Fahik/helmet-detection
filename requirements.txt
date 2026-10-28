@@ -1,0 +1,10 @@
+# Pinned so installs are reproducible. The app was built and tested on
+# Python 3.14 / torch 2.11.0+cpu, but any recent Python 3.10+ works.
+ultralytics==8.4.30
+opencv-python==4.13.0.92
+numpy==2.4.3
+Flask==3.1.3
+
+# Optional: reads number plates off detected crops. The app degrades
+# gracefully (plates are simply skipped) when this is not installed.
+# easyocr==1.7.2
