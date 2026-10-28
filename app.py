@@ -14,7 +14,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 
 from helmet_detection import (
@@ -35,6 +35,17 @@ def _allowed(filename: str) -> bool:
     return Path(filename or "").suffix.lower() in ALLOWED_EXTENSIONS
 
 
+def _asset_version() -> str:
+    """Cache-buster for static assets, so edits are picked up without a hard refresh."""
+
+    stamp = 0
+    for name in ("css/style.css", "js/app.js"):
+        path = PROJECT_ROOT / "static" / name
+        if path.is_file():
+            stamp = max(stamp, int(path.stat().st_mtime))
+    return str(stamp)
+
+
 def create_app(settings: Settings | None = None) -> Flask:
     """Build the Flask application."""
 
@@ -43,6 +54,7 @@ def create_app(settings: Settings | None = None) -> Flask:
     app.config["JSON_SORT_KEYS"] = False
 
     detector = get_detector(settings)
+    asset_version = _asset_version()
 
     @app.get("/")
     def index() -> str:
@@ -50,6 +62,7 @@ def create_app(settings: Settings | None = None) -> Flask:
             "index.html",
             max_upload_mb=MAX_UPLOAD_BYTES // (1024 * 1024),
             samples=_list_samples(),
+            asset_version=asset_version,
         )
 
     @app.get("/api/health")
@@ -112,10 +125,15 @@ def create_app(settings: Settings | None = None) -> Flask:
 
     @app.get("/api/samples/<name>")
     def sample_file(name: str):
-        candidate = (SAMPLES_DIR / name).resolve()
-        if not str(candidate).startswith(str(SAMPLES_DIR.resolve())) or not candidate.is_file():
+        samples_root = SAMPLES_DIR.resolve()
+        candidate = (samples_root / name).resolve()
+        try:
+            candidate.relative_to(samples_root)
+        except ValueError:
             return jsonify({"ok": False, "error": "Sample not found."}), 404
-        return app.send_file(candidate)
+        if not candidate.is_file():
+            return jsonify({"ok": False, "error": "Sample not found."}), 404
+        return send_file(candidate)
 
     @app.errorhandler(RequestEntityTooLarge)
     def too_large(_error):

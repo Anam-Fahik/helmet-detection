@@ -2,7 +2,7 @@
 
 A small Flask app for instant helmet compliance checks. Drop a site photo into the UI and get a verdict (`Helmet detected` / `Helmet missing` / `undetermined`) with per-object detections, confidence bars, and optional number-plate reads.
 
-![HelmetScan UI](docs/screenshot.png)
+![HelmetScan result](docs/screenshot-result.png)
 
 ## Quick start
 
